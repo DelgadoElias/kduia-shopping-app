@@ -7,8 +7,8 @@ export const AppReducer = (state, action) => {
             let updatedqty = false;
             state.expenses.map((expense)=>{
                 if(expense.name === action.payload.name) {
-                    expense.quantity = expense.quantity + action.payload.quantity;
                     updatedqty = true;
+                    expense.total_allocation = expense.total_allocation + action.payload.ammount;
                 }
                 new_expenses.push(expense);
                 return true;
@@ -45,24 +45,32 @@ export const AppReducer = (state, action) => {
             return {
                 ...state,
             };
-    case 'CHG_LOCATION':
+        case 'CHG_LOCATION':
             action.type = "DONE";
             state.Location = action.payload;
             return {
                 ...state
             }
+
+        case 'CHG_BUDGET':
+            state.budget = Number(action.payload);
+            action.type = "DONE";
+            return {
+                ...state
+            };
         default:
             return state;
     }
 };
 // 1. Sets the initial state when the app loads
 const initialState = {
+    budget: 0,
     expenses: [
-        { id: "Shirt", name: 'Shirt', quantity: 0, unitprice: 500 },
-        { id: "Jeans", name: 'Jeans', quantity: 0, unitprice: 300 },
-        { id: "Dress", name: 'Dress', quantity: 0, unitprice: 400 },
-        { id: "Dinner set", name: 'Dinner set', quantity: 0, unitprice: 600 },
-        { id: "Bags", name: 'Bags', quantity: 0, unitprice: 200 },
+        { id: "Marketing", name: 'Marketing', total_allocation: 0 },
+        { id: "Finance", name: 'Finance', total_allocation: 0 },
+        { id: "Sales", name: 'Sales', total_allocation: 0 },
+        { id: "Human Resource", name: 'Human Resource', total_allocation: 0 },
+        { id: "IT", name: 'IT', total_allocation: 0 },
     ],
     Location: '£'
 };
@@ -74,16 +82,18 @@ export const AppProvider = (props) => {
     // 4. Sets up the app state. takes a reducer, and an initial state
     const [state, dispatch] = useReducer(AppReducer, initialState);
     const totalExpenses = state.expenses.reduce((total, item) => {
-        return (total = total + (item.unitprice*item.quantity));
+        return (total = total + (item.total_allocation));
     }, 0);
-state.CartValue = totalExpenses;
+    state.total_of_departments = totalExpenses;
+
     return (
         <AppContext.Provider
             value={{
                 expenses: state.expenses,
-                CartValue: state.CartValue,
+                total_of_departments: state.total_of_departments,
                 dispatch,
-                Location: state.Location
+                Location: state.Location,
+                budget: state.budget
             }}
         >
             {props.children}
